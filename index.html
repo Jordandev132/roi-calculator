@@ -262,33 +262,23 @@ async function submitEmail(){
   btn.textContent='Sending...';
 
   try{
-    const resp=await fetch('/api/roi-subscribe',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        email:email,
-        niche:document.getElementById('niche').value,
+    // Fire-and-forget to Pro dashboard (won't block if unreachable)
+    fetch('https://darkcode-roi.onrender.com/api/roi-subscribe',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,niche:document.getElementById('niche').value,
         missed_calls:parseInt(document.getElementById('calls').value),
         client_value:parseInt(document.getElementById('clientval').value),
-        monthly_impact:document.getElementById('total-impact').textContent
-      })
-    });
+        monthly_impact:document.getElementById('total-impact').textContent})
+    }).catch(()=>{});
 
-    if(resp.ok){
-      succEl.style.display='block';
-      document.getElementById('email-gate').style.borderColor='#22c55e';
-      document.getElementById('full-results').classList.add('show');
-      btn.textContent='Report Unlocked!';
-      document.getElementById('full-results').scrollIntoView({behavior:'smooth',block:'start'});
-    } else {
-      // Still show results even if API fails — don't block the user
-      succEl.style.display='block';
-      document.getElementById('full-results').classList.add('show');
-      btn.textContent='Report Unlocked!';
-    }
+    // Unlock immediately
+    succEl.style.display='block';
+    document.getElementById('email-gate').style.borderColor='#22c55e';
+    document.getElementById('full-results').classList.add('show');
+    btn.textContent='Report Unlocked!';
+    document.getElementById('full-results').scrollIntoView({behavior:'smooth',block:'start'});
   } catch(e){
-    // Network error — still unlock results, log error
-    console.error('Subscribe error:',e);
+    console.error('Error:',e);
     succEl.style.display='block';
     document.getElementById('full-results').classList.add('show');
     btn.textContent='Report Unlocked!';
