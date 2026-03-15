@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI ROI Calculator | DarkCode AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6}
+.container{max-width:720px;margin:0 auto;padding:24px 20px}
+h1{font-size:2rem;color:#fff;text-align:center;margin-bottom:8px;line-height:1.2}
+.subtitle{text-align:center;color:#999;font-size:1.1rem;margin-bottom:40px}
+.brand{text-align:center;margin-bottom:32px;font-size:.85rem;color:#C9A84C;letter-spacing:2px;text-transform:uppercase}
+.calc-section{background:#12121a;border:1px solid #1e1e2e;border-radius:12px;padding:32px;margin-bottom:24px}
+.input-group{margin-bottom:28px}
+.input-group label{display:block;font-weight:600;color:#ccc;margin-bottom:8px;font-size:.95rem}
+.input-group .value-display{font-size:1.5rem;color:#C9A84C;font-weight:700;margin-bottom:6px}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:#1e1e2e;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#C9A84C;cursor:pointer}
+.results{background:#12121a;border:1px solid #1e1e2e;border-radius:12px;padding:32px;margin-bottom:24px}
+.results h2{color:#fff;font-size:1.3rem;margin-bottom:20px;text-align:center}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #1a1a2a}
+.result-row:last-child{border-bottom:none}
+.result-label{color:#999;font-size:.95rem}
+.result-value{font-size:1.2rem;font-weight:700;color:#C9A84C}
+.result-value.green{color:#22c55e}
+.result-value.red{color:#ef4444}
+.big-number{font-size:2.2rem;text-align:center;color:#22c55e;font-weight:800;margin:20px 0 4px}
+.big-label{text-align:center;color:#999;font-size:.9rem;margin-bottom:20px}
+.email-gate{background:linear-gradient(135deg,#12121a 0%,#1a1520 100%);border:2px solid #C9A84C;border-radius:12px;padding:32px;margin-bottom:24px;text-align:center}
+.email-gate h2{color:#fff;font-size:1.2rem;margin-bottom:12px}
+.email-gate p{color:#999;font-size:.9rem;margin-bottom:20px;line-height:1.5}
+.email-gate input[type=email]{width:100%;padding:14px 16px;border:1px solid #2a2a3a;border-radius:8px;background:#0a0a0f;color:#fff;font-size:1rem;margin-bottom:12px;outline:none}
+.email-gate input[type=email]:focus{border-color:#C9A84C}
+.btn{width:100%;padding:14px;border:none;border-radius:8px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-gold{background:#C9A84C;color:#0a0a0f}
+.btn-gold:hover{background:#d4af5a;transform:translateY(-1px)}
+.btn-gold:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.full-results{display:none}
+.full-results.show{display:block}
+.chart-bar{height:24px;border-radius:4px;margin-bottom:8px;transition:width .5s ease}
+.chart-label{display:flex;justify-content:space-between;font-size:.85rem;color:#999;margin-bottom:16px}
+.footer{text-align:center;padding:40px 0;border-top:1px solid #1a1a2a;margin-top:40px}
+.footer a{color:#C9A84C;text-decoration:none;font-weight:600}
+.footer p{color:#666;font-size:.8rem;margin-top:8px}
+.success-msg{color:#22c55e;font-size:.95rem;margin-top:12px;display:none}
+.error-msg{color:#ef4444;font-size:.85rem;margin-top:8px;display:none}
+.niche-select{width:100%;padding:12px 16px;border:1px solid #2a2a3a;border-radius:8px;background:#0a0a0f;color:#fff;font-size:1rem;margin-bottom:4px;outline:none;-webkit-appearance:none}
+.niche-select:focus{border-color:#C9A84C}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.stat-card{background:#0a0a0f;border:1px solid #1e1e2e;border-radius:8px;padding:16px;text-align:center}
+.stat-card .num{font-size:1.6rem;font-weight:800;color:#C9A84C}
+.stat-card .lbl{font-size:.8rem;color:#999;margin-top:4px}
+@media(max-width:500px){h1{font-size:1.5rem}.container{padding:16px 14px}.calc-section,.results,.email-gate{padding:20px}.stat-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">DarkCode AI</div>
+  <h1>How Much Revenue Are You Losing to Missed Calls?</h1>
+  <p class="subtitle">Find out in 30 seconds</p>
+
+  <div class="calc-section">
+    <div class="input-group">
+      <label>Your Industry</label>
+      <select class="niche-select" id="niche" onchange="calculate()">
+        <option value="dental">Dental Practice</option>
+        <option value="real_estate">Real Estate Agency</option>
+        <option value="hvac">HVAC / Home Services</option>
+        <option value="legal">Law Firm</option>
+        <option value="medical">Medical Practice</option>
+        <option value="other">Other Business</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Missed Calls Per Month</label>
+      <div class="value-display" id="calls-val">30</div>
+      <input type="range" id="calls" min="5" max="200" value="30" oninput="calculate()">
+    </div>
+    <div class="input-group">
+      <label>Average Client Value ($)</label>
+      <div class="value-display" id="client-val">$500</div>
+      <input type="range" id="clientval" min="50" max="5000" step="50" value="500" oninput="calculate()">
+    </div>
+    <div class="input-group">
+      <label>Receptionist Hourly Cost ($)</label>
+      <div class="value-display" id="recep-val">$18</div>
+      <input type="range" id="recep" min="10" max="40" value="18" oninput="calculate()">
+    </div>
+  </div>
+
+  <div class="results" id="partial-results">
+    <h2>Your Estimated Impact</h2>
+    <div class="big-number" id="total-impact">$0</div>
+    <div class="big-label">potential monthly impact</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="num" id="missed-rev">$0</div>
+        <div class="lbl">Monthly Revenue Lost</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="monthly-save">$0</div>
+        <div class="lbl">Monthly Savings</div>
+      </div>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Annual Impact</span>
+      <span class="result-value green" id="annual-impact">$0</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Payback Period</span>
+      <span class="result-value" id="payback">0 days</span>
+    </div>
+  </div>
+
+  <div class="email-gate" id="email-gate">
+    <h2>Get Your Full ROI Breakdown</h2>
+    <p>Enter your email for the complete report including:<br>
+    ROI timeline, annual projections, industry benchmarks,<br>
+    and a personalized action plan for your business.</p>
+    <input type="email" id="email" placeholder="your@email.com" required>
+    <div class="error-msg" id="error-msg"></div>
+    <button class="btn btn-gold" id="submit-btn" onclick="submitEmail()">Get Your Full ROI Report</button>
+    <div class="success-msg" id="success-msg">Report sent! Check below for your full breakdown.</div>
+  </div>
+
+  <div class="full-results" id="full-results">
+    <div class="results">
+      <h2>Complete ROI Breakdown</h2>
+      <div class="result-row">
+        <span class="result-label">Missed calls captured by AI</span>
+        <span class="result-value" id="fr-captured">0</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">New clients per month (30% conversion)</span>
+        <span class="result-value green" id="fr-clients">0</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Revenue recovered monthly</span>
+        <span class="result-value green" id="fr-revenue">$0</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Receptionist cost (full-time equivalent)</span>
+        <span class="result-value red" id="fr-recep-cost">$0</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">AI chatbot cost (DarkCode Professional)</span>
+        <span class="result-value" id="fr-ai-cost">$297/mo</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Net monthly savings</span>
+        <span class="result-value green" id="fr-net-save">$0</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">ROI percentage</span>
+        <span class="result-value green" id="fr-roi">0%</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">12-month total impact</span>
+        <span class="result-value green" id="fr-annual">$0</span>
+      </div>
+
+      <div style="margin-top:28px">
+        <h3 style="color:#fff;font-size:1rem;margin-bottom:12px">Revenue Recovery Timeline</h3>
+        <div class="chart-label"><span>Month 1</span><span id="m1-val">$0</span></div>
+        <div style="background:#1e1e2e;border-radius:4px;overflow:hidden;margin-bottom:8px"><div class="chart-bar" id="m1-bar" style="background:#C9A84C;width:0%"></div></div>
+        <div class="chart-label"><span>Month 3</span><span id="m3-val">$0</span></div>
+        <div style="background:#1e1e2e;border-radius:4px;overflow:hidden;margin-bottom:8px"><div class="chart-bar" id="m3-bar" style="background:#22c55e;width:0%"></div></div>
+        <div class="chart-label"><span>Month 6</span><span id="m6-val">$0</span></div>
+        <div style="background:#1e1e2e;border-radius:4px;overflow:hidden;margin-bottom:8px"><div class="chart-bar" id="m6-bar" style="background:#22c55e;width:0%"></div></div>
+        <div class="chart-label"><span>Month 12</span><span id="m12-val">$0</span></div>
+        <div style="background:#1e1e2e;border-radius:4px;overflow:hidden"><div class="chart-bar" id="m12-bar" style="background:#22c55e;width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Ready to stop losing money?</p>
+    <a href="mailto:jordan@darkcodeai.com?subject=ROI%20Calculator%20-%20Interested">Message Us About AI Automation</a>
+    <p>DarkCode AI - AI Automation for Small Businesses</p>
+  </div>
+</div>
+
+<script>
+const NICHE_DEFAULTS={dental:{calls:35,clientVal:800,recep:18},real_estate:{calls:25,clientVal:3000,recep:16},hvac:{calls:40,clientVal:350,recep:17},legal:{calls:20,clientVal:2500,recep:20},medical:{calls:30,clientVal:600,recep:19},other:{calls:30,clientVal:500,recep:18}};
+const AI_COST=297;
+let lastNiche='';
+
+function fmt(n){return'$'+n.toLocaleString('en-US',{maximumFractionDigits:0})}
+
+function calculate(){
+  const niche=document.getElementById('niche').value;
+  if(niche!==lastNiche){
+    const d=NICHE_DEFAULTS[niche]||NICHE_DEFAULTS.other;
+    document.getElementById('calls').value=d.calls;
+    document.getElementById('clientval').value=d.clientVal;
+    document.getElementById('recep').value=d.recep;
+    lastNiche=niche;
+  }
+  const calls=parseInt(document.getElementById('calls').value);
+  const clientVal=parseInt(document.getElementById('clientval').value);
+  const recep=parseInt(document.getElementById('recep').value);
+
+  document.getElementById('calls-val').textContent=calls;
+  document.getElementById('client-val').textContent=fmt(clientVal);
+  document.getElementById('recep-val').textContent=fmt(recep);
+
+  const missedRev=Math.round(calls*clientVal*0.3);
+  const recepCost=Math.round(recep*160);
+  const savings=Math.max(0,recepCost-AI_COST);
+  const totalImpact=savings+missedRev;
+  const annual=totalImpact*12;
+  const roi=Math.round((totalImpact/AI_COST)*100);
+  const payback=Math.max(1,Math.round(AI_COST/(totalImpact/30)));
+  const captured=Math.round(calls*0.85);
+  const newClients=Math.round(calls*0.3);
+
+  document.getElementById('total-impact').textContent=fmt(totalImpact);
+  document.getElementById('missed-rev').textContent=fmt(missedRev);
+  document.getElementById('monthly-save').textContent=fmt(savings);
+  document.getElementById('annual-impact').textContent=fmt(annual);
+  document.getElementById('payback').textContent=payback+' days';
+
+  document.getElementById('fr-captured').textContent=captured;
+  document.getElementById('fr-clients').textContent=newClients;
+  document.getElementById('fr-revenue').textContent=fmt(missedRev);
+  document.getElementById('fr-recep-cost').textContent=fmt(recepCost)+'/mo';
+  document.getElementById('fr-net-save').textContent=fmt(savings);
+  document.getElementById('fr-roi').textContent=roi+'%';
+  document.getElementById('fr-annual').textContent=fmt(annual);
+
+  const m1=totalImpact-AI_COST;
+  const m3=totalImpact*3-AI_COST;
+  const m6=totalImpact*6-AI_COST;
+  const m12=annual-AI_COST;
+  document.getElementById('m1-val').textContent=fmt(m1);
+  document.getElementById('m3-val').textContent=fmt(m3);
+  document.getElementById('m6-val').textContent=fmt(m6);
+  document.getElementById('m12-val').textContent=fmt(m12);
+
+  const max=m12||1;
+  document.getElementById('m1-bar').style.width=Math.max(5,m1/max*100)+'%';
+  document.getElementById('m3-bar').style.width=Math.max(5,m3/max*100)+'%';
+  document.getElementById('m6-bar').style.width=Math.max(5,m6/max*100)+'%';
+  document.getElementById('m12-bar').style.width='100%';
+}
+
+async function submitEmail(){
+  const email=document.getElementById('email').value.trim();
+  const errEl=document.getElementById('error-msg');
+  const succEl=document.getElementById('success-msg');
+  const btn=document.getElementById('submit-btn');
+
+  errEl.style.display='none';
+  if(!email||!email.includes('@')){
+    errEl.textContent='Please enter a valid email address.';
+    errEl.style.display='block';
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent='Sending...';
+
+  try{
+    const resp=await fetch('/api/roi-subscribe',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email:email,
+        niche:document.getElementById('niche').value,
+        missed_calls:parseInt(document.getElementById('calls').value),
+        client_value:parseInt(document.getElementById('clientval').value),
+        monthly_impact:document.getElementById('total-impact').textContent
+      })
+    });
+
+    if(resp.ok){
+      succEl.style.display='block';
+      document.getElementById('email-gate').style.borderColor='#22c55e';
+      document.getElementById('full-results').classList.add('show');
+      btn.textContent='Report Unlocked!';
+      document.getElementById('full-results').scrollIntoView({behavior:'smooth',block:'start'});
+    } else {
+      // Still show results even if API fails — don't block the user
+      succEl.style.display='block';
+      document.getElementById('full-results').classList.add('show');
+      btn.textContent='Report Unlocked!';
+    }
+  } catch(e){
+    // Network error — still unlock results, log error
+    console.error('Subscribe error:',e);
+    succEl.style.display='block';
+    document.getElementById('full-results').classList.add('show');
+    btn.textContent='Report Unlocked!';
+  }
+}
+
+calculate();
+</script>
+</body>
+</html>
